@@ -1,7 +1,12 @@
-const {app, Tray, Menu, shell, BrowserWindow, globalShortcut, screen, ipcMain} = require('electron'),
-      path = require('path'),
-      Store = require('electron-store'),
-      store = new Store();
+import { app, Tray, Menu, shell, BrowserWindow, globalShortcut, screen, ipcMain } from 'electron';
+import { resolve, join } from 'path';
+import Store from 'electron-store';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const store = new Store();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 let tray, ollama, closeTimeout, visible = true;
 
@@ -50,14 +55,14 @@ const createWindow = () => {
         transparent: true,
         x: width - winWidth - 10,
         y: height - winHeight - 60,
-        icon: path.resolve(__dirname, 'icon.png'),
+        icon: resolve(__dirname, 'icon.png'),
         show: getValue('show-on-startup', true),
         webPreferences: {
             contextIsolation: true,
             devTools: true,
             nodeIntegration: true,
             webviewTag: true,
-            preload: path.join(__dirname, 'src/preload.js')
+            preload: join(__dirname, 'src/preload.js')
         }
     });
 
@@ -81,7 +86,7 @@ const createWindow = () => {
 };
 
 const createTray = () => {
-    tray = new Tray(path.resolve(__dirname, 'icon.png'));
+    tray = new Tray(resolve(__dirname, 'icon.png'));
     const contextMenu = Menu.buildFromTemplate([
         {
             label: 'About (GitHub)',
@@ -100,7 +105,7 @@ const createTray = () => {
                     skipTaskbar: true,
                     webPreferences: {
                         contextIsolation: true,
-                        preload: path.join(__dirname, 'components/setKeybindingsOverlay/preload.js')
+                        preload: join(__dirname, 'components/setKeybindingsOverlay/preload.js')
                     }
                 });
                 dialog.loadFile('components/setKeybindingsOverlay/index.html').catch(console.error);
