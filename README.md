@@ -1,6 +1,6 @@
 # Ollama Desktop Client (Electron)
 
-Fork of the original Gemini Desktop Client by [nekupaw](https://github.com/nekupaw/gemini-desktop) with modifications for self-hosted Ollama interface.
+Fork of the original Gemini Desktop Client by [nekupaw](https://github.com/nekupaw/gemini-desktop) with modifications for self-hosted AI interface.
 
 Precompiled versions for macOS and Windows are available for download here:
 [Windows (Setup)](https://github.com/danchev/ollama-desktop/releases/download/0.0.2/Ollama-Desktop.Setup.0.0.2.exe)
