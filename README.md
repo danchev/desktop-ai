@@ -1,10 +1,9 @@
 # Ollama Desktop Client (Electron)
-I've developed a straightforward desktop client for Ollama using the Electron framework.
+
+Fork of the original Gemini Desktop Client by [nekupaw](https://github.com/nekupaw/gemini-desktop) with modifications for self-hosted Ollama interface.
 
 Precompiled versions for macOS and Windows are available for download here:
-[Windows (Setup)](https://github.com/danchev/ollama-desktop/releases/download/1.0.7/Ollama-Desktop.Setup.1.0.7.exe))
-[macOS-arm64 (dmg)](https://github.com/danchev/ollama-desktop/releases/download/1.0.3/Ollama-Desktop.mac-arm64.dmg)
-
+[Windows (Setup)](https://github.com/danchev/ollama-desktop/releases/download/0.0.1/Ollama-Desktop.Setup.0.0.1.exe)
 
 For other systems, simply adapt and build the source code to suit your needs.
 
