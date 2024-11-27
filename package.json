@@ -1,6 +1,6 @@
 {
   "name": "ollama-desktop",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A simple Ollama client using the Electron framework",
   "type": "module",
   "main": "index.js",
