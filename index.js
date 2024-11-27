@@ -3,18 +3,18 @@ const {app, Tray, Menu, shell, BrowserWindow, globalShortcut, screen, ipcMain} =
       Store = require('electron-store'),
       store = new Store();
 
-let tray, gemini, closeTimeout, visible = true;
+let tray, ollama, closeTimeout, visible = true;
 
-const exec = code => gemini.webContents.executeJavaScript(code).catch(console.error),
+const exec = code => ollama.webContents.executeJavaScript(code).catch(console.error),
     getValue = (key, defaultVal = false) => store.get(key, defaultVal);
 
 const toggleVisibility = action => {
     visible = action;
     if (action){
         clearTimeout(closeTimeout);
-        gemini.show();
-    } else closeTimeout = setTimeout(() => gemini.hide(), 400);
-    gemini.webContents.send('toggle-visibility', action);
+        ollama.show();
+    } else closeTimeout = setTimeout(() => ollama.hide(), 400);
+    ollama.webContents.send('toggle-visibility', action);
 };
 
 const registerKeybindings = () => {
@@ -29,7 +29,7 @@ const registerKeybindings = () => {
     if (shortcutB) {
         globalShortcut.register(shortcutB, () => {
             toggleVisibility(true);
-            gemini.webContents.send('activate-mic');
+            ollama.webContents.send('activate-mic');
         });
     }
 };
@@ -38,7 +38,7 @@ const createWindow = () => {
     const {width, height} = screen.getPrimaryDisplay().bounds,
         winWidth = 400, winHeight = 700;
 
-    gemini = new BrowserWindow({
+    ollama = new BrowserWindow({
         width: winWidth,
         height: winHeight,
         frame: false,
@@ -61,9 +61,9 @@ const createWindow = () => {
         }
     });
 
-    gemini.loadFile('src/index.html').catch(console.error);
+    ollama.loadFile('src/index.html').catch(console.error);
 
-    gemini.on('blur', () => {
+    ollama.on('blur', () => {
         if (!getValue('always-on-top', false)) toggleVisibility(false);
     });
 
@@ -85,7 +85,7 @@ const createTray = () => {
     const contextMenu = Menu.buildFromTemplate([
         {
             label: 'About (GitHub)',
-            click: () => shell.openExternal('https://github.com/nekupaw/gemini-desktop').catch(console.error)
+            click: () => shell.openExternal('https://github.com/danchev/ollama-desktop').catch(console.error)
         },
         {type: 'separator'},
         {
@@ -121,8 +121,8 @@ const createTray = () => {
         },
         {type: 'separator'},
         {
-            label: 'Quit Gemini',
-            click: () => gemini.close()
+            label: 'Quit Ollama',
+            click: () => ollama.close()
         }
     ]);
 

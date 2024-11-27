@@ -1,27 +1,27 @@
 {
-  "name": "gemini-desktop",
+  "name": "ollama-desktop",
   "version": "1.0.7",
-  "description": "A simple Gemini client using the Electron framework",
+  "description": "A simple Ollama client using the Electron framework",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "electron .",
     "build": "electron-builder"
   },
-  "author": "@nekupaw",
+  "author": "@danchev",
   "license": "ISC",
   "devDependencies": {
-    "electron-builder": "^24.13.3",
-    "electron-winstaller": "^5.3.0",
-    "electron": "^32.1.2"
+    "electron": "^32.2.5",
+    "electron-builder": "^25.1.8",
+    "electron-winstaller": "^5.4.0"
   },
   "dependencies": {
-    "electron-store": "^8.2.0",
+    "electron-store": "^10.0.0",
     "electron-tray": "^0.1.1"
   },
   "build": {
-    "appId": "gemini.neku.paw",
-    "productName": "Gemini-Desktop",
+    "appId": "ollama.danchev.net",
+    "productName": "Ollama-Desktop",
     "directories": {
       "output": "build"
     },
