@@ -2,6 +2,7 @@
   "name": "ollama-desktop",
   "version": "1.0.7",
   "description": "A simple Ollama client using the Electron framework",
+  "type": "module",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
