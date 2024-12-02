@@ -17,7 +17,7 @@
     "url": "git+https://github.com/danchev/ollama-desktop.git"
   },
   "devDependencies": {
-    "electron": "^32.2.5",
+    "electron": "^33.2.1",
     "electron-builder": "^25.1.8",
     "electron-winstaller": "^5.4.0"
   },
