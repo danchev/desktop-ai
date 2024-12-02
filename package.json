@@ -22,8 +22,7 @@
     "electron-winstaller": "^5.4.0"
   },
   "dependencies": {
-    "electron-store": "^10.0.0",
-    "electron-tray": "^0.1.1"
+    "electron-store": "^10.0.0"
   },
   "build": {
     "appId": "net.danchev.ollama-desktop",
