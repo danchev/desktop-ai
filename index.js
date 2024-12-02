@@ -86,7 +86,7 @@ const createWindow = () => {
 };
 
 const createTray = () => {
-    tray = new Tray(resolve(__dirname, 'icon.png'));
+    tray = new Tray(resolve(__dirname, 'assets/icon.png'));
     const contextMenu = Menu.buildFromTemplate([
         {
             label: 'About (GitHub)',
