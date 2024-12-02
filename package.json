@@ -11,6 +11,11 @@
   },
   "author": "@danchev",
   "license": "ISC",
+  "homepage": "https://github.com/danchev/ollama-desktop",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/danchev/ollama-desktop.git"
+  },
   "devDependencies": {
     "electron": "^32.2.5",
     "electron-builder": "^25.1.8",
