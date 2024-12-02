@@ -17,8 +17,8 @@ function format(array) {
 }
 
 async function main(){
-    shortcutObjs[0].innerText = await window.electron.getLocalStorage('shortcutA');
-    // shortcutObjs[1].innerText = await window.electron.getLocalStorage('shortcutB');
+    shortcutObjs[0].innerText = await window.electron.getLocalStorage('toggleVisibilityShortcut');
+    // shortcutObjs[1].innerText = await window.electron.getLocalStorage('toggleMicShortcut');
 
     shortcutObjs.forEach(btn => {
         btn.onclick = (event) => {
@@ -28,8 +28,8 @@ async function main(){
     });
 
     document.querySelector('.done').onclick = () => {
-        window.electron.setLocalStorage('shortcutA', shortcutObjs[0].innerText);
-        // window.electron.setLocalStorage('shortcutB', shortcutObjs[1].innerText);
+        window.electron.setLocalStorage('toggleVisibilityShortcut', shortcutObjs[0].innerText);
+        // window.electron.setLocalStorage('toggleMicShortcut', shortcutObjs[1].innerText);
         window.electron.close();
     }
 

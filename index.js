@@ -24,15 +24,15 @@ const toggleVisibility = action => {
 
 const registerKeybindings = () => {
     globalShortcut.unregisterAll();
-    const shortcutA = getValue('shortcutA'),
-        shortcutB = getValue('shortcutB');
+    const toggleVisibilityShortcut = getValue('toggleVisibilityShortcut'),
+        toggleMicShortcut = getValue('toggleMicShortcut');
 
-    if (shortcutA) {
-        globalShortcut.register(shortcutA, () => toggleVisibility(!visible));
+    if (toggleVisibilityShortcut) {
+        globalShortcut.register(toggleVisibilityShortcut, () => toggleVisibility(!visible));
     }
 
-    if (shortcutB) {
-        globalShortcut.register(shortcutB, () => {
+    if (toggleMicShortcut) {
+        globalShortcut.register(toggleMicShortcut, () => {
             toggleVisibility(true);
             ollama.webContents.send('activate-mic');
         });
