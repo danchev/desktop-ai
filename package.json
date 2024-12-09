@@ -19,7 +19,8 @@
   "devDependencies": {
     "electron": "^33.2.1",
     "electron-builder": "^25.1.8",
-    "electron-winstaller": "^5.4.0"
+    "electron-winstaller": "^5.4.0",
+    "prettier": "^3.4.2"
   },
   "dependencies": {
     "electron-store": "^10.0.0"
