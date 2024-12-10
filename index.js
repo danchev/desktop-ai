@@ -23,7 +23,7 @@ let tray,
   visible = true;
 
 const exec = (code) =>
-    ollama.webContents.executeJavaScript(code).catch(console.error),
+  ollama.webContents.executeJavaScript(code).catch(console.error),
   getValue = (key, defaultVal = false) => store.get(key, defaultVal);
 
 const toggleVisibility = (action) => {
@@ -112,7 +112,7 @@ const createTray = () => {
     },
     { type: "separator" },
     {
-      label: "Set Keybindings",
+      label: "Settings",
       click: () => {
         const dialog = new BrowserWindow({
           width: 500,
@@ -125,12 +125,12 @@ const createTray = () => {
             contextIsolation: true,
             preload: join(
               __dirname,
-              "components/setKeybindingsOverlay/preload.js",
+              "components/settingsOverlay/preload.js",
             ),
           },
         });
         dialog
-          .loadFile("components/setKeybindingsOverlay/index.html")
+          .loadFile("components/settingsOverlay/index.html")
           .catch(console.error);
         dialog.show();
       },
