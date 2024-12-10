@@ -25,7 +25,6 @@ async function main() {
   shortcutObjs[0].innerText = await window.electron.getLocalStorage(
     "toggleVisibilityShortcut",
   );
-  webviewUrlInput.value = await window.electron.getLocalStorage("webviewUrl");
 
   shortcutObjs.forEach((btn) => {
     btn.onclick = (event) => {
@@ -34,12 +33,18 @@ async function main() {
     };
   });
 
+  webviewUrlInput.placeholder = "Enter webview URL";
+  webviewUrlInput.onfocus = () => { webviewUrlInput.select(); };
+  webviewUrlInput.onkeydown = (e) => { if (e.key === "Enter") document.querySelector(".done").click(); };
+  webviewUrlInput.value = await window.electron.getLocalStorage("webviewUrl");
+
   document.querySelector(".done").onclick = () => {
     window.electron.setLocalStorage(
       "toggleVisibilityShortcut",
       shortcutObjs[0].innerText,
     );
     window.electron.setLocalStorage("webviewUrl", webviewUrlInput.value);
+    window.electron.updateWebviewUrl(webviewUrlInput.value);
     window.electron.close();
   };
 

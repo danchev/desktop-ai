@@ -8,37 +8,34 @@ import {
   screen,
   ipcMain,
 } from "electron";
-import { resolve, join } from "path";
+import { resolve, join, dirname } from "path";
 import Store from "electron-store";
 import { fileURLToPath } from "url";
-import { dirname } from "path";
 
 const store = new Store();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-let tray,
-  ollama,
-  closeTimeout,
-  visible = true;
+let tray, mainWindow, closeTimeout, visible = true;
 
 const exec = (code) =>
-  ollama.webContents.executeJavaScript(code).catch(console.error),
+  mainWindow.webContents.executeJavaScript(code).catch(console.error),
   getValue = (key, defaultVal = false) => store.get(key, defaultVal);
 
 const toggleVisibility = (action) => {
   visible = action;
   if (action) {
     clearTimeout(closeTimeout);
-    ollama.show();
-  } else closeTimeout = setTimeout(() => ollama.hide(), 400);
-  ollama.webContents.send("toggle-visibility", action);
+    mainWindow.show();
+  } else closeTimeout = setTimeout(() => mainWindow.hide(), 400);
+  mainWindow.webContents.send("toggle-visibility", action);
 };
 
 const registerKeybindings = () => {
   globalShortcut.unregisterAll();
-  const toggleVisibilityShortcut = getValue("toggleVisibilityShortcut"),
-    toggleMicShortcut = getValue("toggleMicShortcut");
+
+  const toggleVisibilityShortcut = getValue("toggleVisibilityShortcut");
+  const toggleMicShortcut = getValue("toggleMicShortcut");
 
   if (toggleVisibilityShortcut) {
     globalShortcut.register(toggleVisibilityShortcut, () =>
@@ -49,17 +46,24 @@ const registerKeybindings = () => {
   if (toggleMicShortcut) {
     globalShortcut.register(toggleMicShortcut, () => {
       toggleVisibility(true);
-      ollama.webContents.send("activate-mic");
+      mainWindow.webContents.send("activate-mic");
     });
   }
 };
+
+const updateWebviewUrl = (url) => {
+  mainWindow.webContents.executeJavaScript(`
+    document.getElementById('webview').src = \`${url}\`;
+  `);
+};
+
 
 const createWindow = () => {
   const { width, height } = screen.getPrimaryDisplay().bounds,
     winWidth = 400,
     winHeight = 700;
 
-  ollama = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: winWidth,
     height: winHeight,
     frame: false,
@@ -82,9 +86,11 @@ const createWindow = () => {
     },
   });
 
-  ollama.loadFile("src/index.html").catch(console.error);
+  mainWindow.loadFile("src/index.html").then(() => {
+    updateWebviewUrl(getValue("webviewUrl", "https://gemini.google.com/app"));
+  }).catch(console.error);
 
-  ollama.on("blur", () => {
+  mainWindow.on("blur", () => {
     if (!getValue("always-on-top", false)) toggleVisibility(false);
   });
 
@@ -98,6 +104,11 @@ const createWindow = () => {
   ipcMain.on("close", (event) => {
     BrowserWindow.fromWebContents(event.sender).close();
   });
+
+  ipcMain.on("update-webview-url", (event, url) => {
+    updateWebviewUrl(url);
+  });
+
 };
 
 const createTray = () => {
@@ -150,7 +161,7 @@ const createTray = () => {
     { type: "separator" },
     {
       label: "Quit Ollama",
-      click: () => ollama.close(),
+      click: () => mainWindow.close(),
     },
   ]);
 
