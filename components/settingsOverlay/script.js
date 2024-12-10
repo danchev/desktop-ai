@@ -1,4 +1,5 @@
 const shortcutObjs = document.querySelectorAll(".btn");
+const webviewUrlInput = document.querySelector(".url-input");
 
 const register = (btn) => {
   let shortcut = [];
@@ -24,7 +25,7 @@ async function main() {
   shortcutObjs[0].innerText = await window.electron.getLocalStorage(
     "toggleVisibilityShortcut",
   );
-  // shortcutObjs[1].innerText = await window.electron.getLocalStorage('toggleMicShortcut');
+  webviewUrlInput.value = await window.electron.getLocalStorage("webviewUrl");
 
   shortcutObjs.forEach((btn) => {
     btn.onclick = (event) => {
@@ -38,7 +39,7 @@ async function main() {
       "toggleVisibilityShortcut",
       shortcutObjs[0].innerText,
     );
-    // window.electron.setLocalStorage('toggleMicShortcut', shortcutObjs[1].innerText);
+    window.electron.setLocalStorage("webviewUrl", webviewUrlInput.value);
     window.electron.close();
   };
 
