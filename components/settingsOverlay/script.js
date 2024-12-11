@@ -8,7 +8,7 @@ const register = (btn) => {
   document.addEventListener(
     "keyup",
     (e) => {
-      if (e.keyCode !== 8) {
+      if (e.key !== "Backspace") {
         btn.target.innerText = format(shortcut.splice(0, 3));
       } else btn.target.innerText = "";
       shortcut.length = 0;
@@ -28,7 +28,6 @@ async function main() {
 
   shortcutObjs.forEach((btn) => {
     btn.onclick = (event) => {
-      btn.innerText = "enter keybinding";
       register(event);
     };
   });
