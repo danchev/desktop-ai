@@ -57,6 +57,15 @@ const updateWebviewUrl = (url) => {
   `);
 };
 
+const getWebviewUrl = () => {
+  const defaultUrl = 'https://gemini.google.com/app';
+  let webviewUrl = getValue('webviewUrl');
+  if (!webviewUrl) {
+    store.set('webviewUrl', defaultUrl);
+    webviewUrl = defaultUrl;
+  }
+  return webviewUrl;
+}
 
 const createWindow = () => {
   const { width, height } = screen.getPrimaryDisplay().bounds,
@@ -87,7 +96,7 @@ const createWindow = () => {
   });
 
   mainWindow.loadFile("src/index.html").then(() => {
-    updateWebviewUrl(getValue("webviewUrl", "https://gemini.google.com/app"));
+    updateWebviewUrl(getWebviewUrl());
   }).catch(console.error);
 
   mainWindow.on("blur", () => {
