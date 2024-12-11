@@ -1,6 +1,6 @@
 {
   "name": "ollama-desktop",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Ollama Desktop Client",
   "type": "module",
   "main": "index.js",
@@ -34,6 +34,11 @@
     "win": {
       "target": "nsis",
       "icon": "assets/icon.png"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "assets/icon.png",
+      "category": "Chat"
     }
   }
 }
