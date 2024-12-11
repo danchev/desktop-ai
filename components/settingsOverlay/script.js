@@ -17,6 +17,7 @@ const register = (btn) => {
   );
 };
 
+
 function format(array) {
   return array.join(" + ").toLowerCase();
 }
@@ -33,9 +34,9 @@ async function main() {
   });
 
   webviewUrlInput.placeholder = "Enter webview URL";
+  webviewUrlInput.value = await window.electron.getLocalStorage("webviewUrl", "https://gemini.google.com/app");
   webviewUrlInput.onfocus = () => { webviewUrlInput.select(); };
   webviewUrlInput.onkeydown = (e) => { if (e.key === "Enter") document.querySelector(".done").click(); };
-  webviewUrlInput.value = await window.electron.getLocalStorage("webviewUrl");
 
   document.querySelector(".done").onclick = () => {
     window.electron.setLocalStorage(
