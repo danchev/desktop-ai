@@ -52,20 +52,21 @@ const registerKeybindings = () => {
 };
 
 const updateWebviewUrl = (url) => {
+  try {
+    const parsedUrl = new URL(url);
+    if (parsedUrl.protocol !== "http:" && parsedUrl.protocol !== "https:") {
+      throw new Error("Invalid URL protocol");
+    }
+  } catch (e) {
+    console.error("Invalid URL:", e.message);
+    return;
+  }
+
   mainWindow.webContents.executeJavaScript(`
     document.getElementById('webview').src = \`${url}\`;
   `);
 };
 
-const getWebviewUrl = () => {
-  const defaultUrl = 'https://gemini.google.com/app';
-  let webviewUrl = getValue('webviewUrl');
-  if (!webviewUrl) {
-    store.set('webviewUrl', defaultUrl);
-    webviewUrl = defaultUrl;
-  }
-  return webviewUrl;
-}
 
 const createWindow = () => {
   const { width, height } = screen.getPrimaryDisplay().bounds,
@@ -96,7 +97,8 @@ const createWindow = () => {
   });
 
   mainWindow.loadFile("src/index.html").then(() => {
-    updateWebviewUrl(getWebviewUrl());
+    const webviewUrl = getValue("webviewUrl", false);
+    updateWebviewUrl(webviewUrl);
   }).catch(console.error);
 
   mainWindow.on("blur", () => {
