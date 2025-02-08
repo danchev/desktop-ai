@@ -1,121 +1,119 @@
+:root {
+  --bg-primary: #2b2b2b;
+  --bg-secondary: #202020;
+  --element-bg: #545454;
+  --element-bg-hover: #5d5d5d;
+  --text-color: white;
+  --primary-color: #4cc2ff;
+  --border-radius: 5px;
+  --transition-duration: 0.2s;
+  --font-family: "Segoe UI", sans-serif;
+}
+
 * {
-    background: none;
-    outline: none;
-    border: none;
-    margin: 0;
-    padding: 0;
-    font-family: "Segoe UI", sans-serif;
-    color: white;
-    transition: 0.2s ease;
+  background: none;
+  outline: none;
+  border: none;
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-family);
+  color: var(--text-color);
+  transition: var(--transition-duration) ease;
+  box-sizing: border-box; /* Added for consistent box model */
 }
 
 html {
-    background: #2b2b2b;
-    user-select: none;
+  background: var(--bg-primary);
+  user-select: none;
+  height: 100%; /* Ensure html takes full height */
 }
 
 body {
-    display: flex;
-    height: 100dvh;
-    width: 100%;
-    flex-direction: column;
-    gap: 50px;
-    padding: 30px;
-    box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 50px;
+  padding: 30px;
+  height: 100dvh; /* Use dynamic viewport height */
+  width: 100%;
 }
 
-.shortcut-container {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    flex-direction: column;
-    gap: 20px;
+.shortcut-container,
+.url-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
 .shortcut {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.btn {
-    height: 50px;
-    border-radius: 5px;
-    background: #545454;
-    width: 50%;
-    display: grid;
-    place-items: center;
-    font-size: 17px;
-}
-
-.btn:hover {
-    background: #5d5d5d;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .name {
-    font-size: 20px;
+  font-size: 20px;
 }
 
-.url-container {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
+.btn,
 .url-input {
-    height: 50px;
-    border-radius: 5px;
-    background: #545454;
-    width: 50%;
-    padding: 0 10px;
-    font-size: 17px;
-    color: white;
+  height: 50px;
+  border-radius: var(--border-radius);
+  background: var(--element-bg);
+  width: 50%;
+  padding: 0 10px;
+  font-size: 17px;
+  color: var(--text-color);
 }
 
+.btn {
+  display: grid;
+  place-items: center;
+}
+
+.btn:hover,
 .url-input:focus {
-    background: #5d5d5d;
+  background: var(--element-bg-hover);
 }
 
 .headline {
-    font-size: 25px;
+  font-size: 25px;
 }
 
 .btn-container {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    background: #202020;
-    align-items: center;
-    justify-content: center;
-    display: flex;
-    padding: 30px;
-    box-sizing: border-box;
-    width: 100%;
-    gap: 20px;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  background: var(--bg-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 30px;
+  width: 100%;
+  gap: 20px;
+}
 
-    button.done {
-        background: #4cc2ff;
-        color: black;
-    }
+.btn-container button {
+  height: 40px;
+  width: 100%;
+  border-radius: var(--border-radius);
+  font-size: 15px;
+}
 
-    button.done:hover {
-        filter: brightness(0.9);
-    }
+.btn-container button.done {
+  background: var(--primary-color);
+  color: black;
+}
 
-    button.cancel {
-        background: #2d2d2d;
-    }
+.btn-container button.done:hover {
+  filter: brightness(0.9);
+}
 
-    button.cancel:hover {
-        background: #323232;
-    }
+.btn-container button.cancel {
+  background: #2d2d2d;
+}
 
-    button {
-        height: 40px;
-        width: 100%;
-        border-radius: 5px;
-        font-size: 15px;
-    }
+.btn-container button.cancel:hover {
+  background: #323232;
 }
