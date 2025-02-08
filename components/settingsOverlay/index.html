@@ -1,30 +1,39 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8" />
-  <link rel="stylesheet" href="style.css" />
-  <script defer src="script.js"></script>
-  <title>Title</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ollama Settings</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-  <p class="headline">Settings for Ollama</p>
-  <div class="shortcut-container">
-    <div class="shortcut">
-      <p class="name">Open/Close Shortcut</p>
-      <div class="btn"></div>
-    </div>
-    <div class="url-container">
-      <p class="name">Webview URL</p>
-      <input type="text" class="url-input" placeholder="Enter the page URL here" />
-    </div>
-  </div>
-  <div class="btn-container">
+  <main>
+    <header>
+      <h2 class="headline">Settings</h2>
+    </header>
+
+    <section class="shortcut-container">
+      <div class="shortcut">
+        <label for="shortcut-btn" class="name">Open/Close Shortcut:</label>
+        <button id="shortcut-btn" class="btn"></button>
+      </div>
+    </section>
+
+    <section class="url-container">
+      <div class="url">
+        <label for="webview-url" class="name">Webview URL:</label>
+        <input type="url" id="webview-url" class="url-input" placeholder="Enter the page URL here">
+      </div>
+    </section>
+  </main>
+
+  <footer class="btn-container">
     <button class="done">Save</button>
     <button class="cancel">Cancel</button>
-  </div>
+  </footer>
+  <script defer src="script.js"></script>
 </body>
 
 </html>
-  
