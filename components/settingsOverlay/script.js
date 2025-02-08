@@ -28,9 +28,8 @@ function format(array) {
 }
 
 async function main() {
-  shortcutObjs[0].innerText = await window.electron.getLocalStorage(
-    "toggleVisibilityShortcut",
-  );
+  shortcutObjs[0].innerText =
+    (await window.electron.getLocalStorage("toggleVisibilityShortcut")) || "";
 
   shortcutObjs.forEach((btn) => {
     btn.onclick = (event) => {
@@ -39,7 +38,8 @@ async function main() {
   });
 
   webviewUrlInput.placeholder = "Enter webview URL";
-  webviewUrlInput.value = await window.electron.getLocalStorage("webviewUrl");
+  webviewUrlInput.value =
+    (await window.electron.getLocalStorage("webviewUrl")) || "";
   webviewUrlInput.onfocus = () => {
     webviewUrlInput.select();
   };
