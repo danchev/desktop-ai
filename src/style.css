@@ -3,6 +3,7 @@
   padding: 0;
   transition: 0.4s cubic-bezier(0.22, 1, 0.36, 1);
   user-select: none;
+  box-sizing: border-box; /* Added for consistent box model */
 }
 
 body {
@@ -21,11 +22,11 @@ body {
   background: white;
   opacity: 1;
   transform: scale(1);
+}
 
-  webview {
-    height: 100%;
-    width: 100%;
-  }
+.view webview {
+  height: 100%;
+  width: 100%;
 }
 
 .view.close {
@@ -38,15 +39,15 @@ body {
   width: 100%;
   display: flex;
   justify-content: flex-end;
+}
 
-  .drag {
-    background-image: url("assets/drag.png");
-    background-size: cover;
-    height: 20px;
-    width: 20px;
-    opacity: 0;
-    -webkit-app-region: drag;
-  }
+.drag {
+  background-image: url("assets/drag.png");
+  background-size: cover;
+  height: 20px;
+  width: 20px;
+  opacity: 0;
+  -webkit-app-region: drag;
 }
 
 .drag-container:hover .drag {
