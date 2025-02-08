@@ -18,24 +18,28 @@ const __dirname = dirname(__filename);
 
 let tray, mainWindow, closeTimeout, visible = true;
 
-const exec = (code) =>
-  mainWindow.webContents.executeJavaScript(code).catch(console.error),
-  getValue = (key, defaultVal = false) => store.get(key, defaultVal);
+// Utility functions
+const executeJavaScript = (code) =>
+  mainWindow.webContents.executeJavaScript(code).catch(console.error);
+const getStoreValue = (key, defaultVal = false) => store.get(key, defaultVal);
+const setStoreValue = (key, value) => store.set(key, value);
 
 const toggleVisibility = (action) => {
   visible = action;
+  clearTimeout(closeTimeout);
   if (action) {
-    clearTimeout(closeTimeout);
     mainWindow.show();
-  } else closeTimeout = setTimeout(() => mainWindow.hide(), 400);
+  } else {
+    closeTimeout = setTimeout(() => mainWindow.hide(), 400);
+  }
   mainWindow.webContents.send("toggle-visibility", action);
 };
 
 const registerKeybindings = () => {
   globalShortcut.unregisterAll();
 
-  const toggleVisibilityShortcut = getValue("toggleVisibilityShortcut");
-  const toggleMicShortcut = getValue("toggleMicShortcut");
+  const toggleVisibilityShortcut = getStoreValue("toggleVisibilityShortcut");
+  const toggleMicShortcut = getStoreValue("toggleMicShortcut");
 
   if (toggleVisibilityShortcut) {
     globalShortcut.register(toggleVisibilityShortcut, () =>
@@ -51,27 +55,25 @@ const registerKeybindings = () => {
   }
 };
 
-const updateWebviewUrl = (url) => {
+const isValidUrl = (url) => {
   try {
     const parsedUrl = new URL(url);
-    if (parsedUrl.protocol !== "http:" && parsedUrl.protocol !== "https:") {
-      throw new Error("Invalid URL protocol");
-    }
+    return parsedUrl.protocol === "http:" || parsedUrl.protocol === "https:";
   } catch (e) {
     console.error("Invalid URL:", e.message);
-    return;
+    return false;
   }
-
-  mainWindow.webContents.executeJavaScript(`
-    document.getElementById('webview').src = \`${url}\`;
-  `);
 };
 
+const updateWebviewUrl = (url) => {
+  if (!isValidUrl(url)) return;
+  executeJavaScript(`document.getElementById('webview').src = \`${url}\`;`);
+};
 
 const createWindow = () => {
-  const { width, height } = screen.getPrimaryDisplay().bounds,
-    winWidth = 400,
-    winHeight = 700;
+  const { width, height } = screen.getPrimaryDisplay().bounds;
+  const winWidth = 400;
+  const winHeight = 700;
 
   mainWindow = new BrowserWindow({
     width: winWidth,
@@ -86,7 +88,7 @@ const createWindow = () => {
     x: width - winWidth - 10,
     y: height - winHeight - 60,
     icon: resolve(__dirname, "icon.png"),
-    show: getValue("show-on-startup", true),
+    show: getStoreValue("show-on-startup", true),
     webPreferences: {
       contextIsolation: true,
       devTools: true,
@@ -96,30 +98,30 @@ const createWindow = () => {
     },
   });
 
-  mainWindow.loadFile("src/index.html").then(() => {
-    const webviewUrl = getValue("webviewUrl", false);
-    updateWebviewUrl(webviewUrl);
-  }).catch(console.error);
+  mainWindow
+    .loadFile("src/index.html")
+    .then(() => {
+      const webviewUrl = getStoreValue("webviewUrl", false);
+      updateWebviewUrl(webviewUrl);
+    })
+    .catch(console.error);
 
   mainWindow.on("blur", () => {
-    if (!getValue("always-on-top", false)) toggleVisibility(false);
+    if (!getStoreValue("always-on-top", false)) toggleVisibility(false);
   });
 
-  ipcMain.handle("get-local-storage", (event, key) => getValue(key));
-
+  // IPC Handlers
+  ipcMain.handle("get-local-storage", (event, key) => getStoreValue(key));
   ipcMain.on("set-local-storage", (event, key, value) => {
-    store.set(key, value);
+    setStoreValue(key, value);
     registerKeybindings();
   });
-
   ipcMain.on("close", (event) => {
     BrowserWindow.fromWebContents(event.sender).close();
   });
-
   ipcMain.on("update-webview-url", (event, url) => {
     updateWebviewUrl(url);
   });
-
 };
 
 const createTray = () => {
@@ -160,14 +162,14 @@ const createTray = () => {
     {
       label: "Always on Top",
       type: "checkbox",
-      checked: getValue("always-on-top", false),
-      click: (menuItem) => store.set("always-on-top", menuItem.checked),
+      checked: getStoreValue("always-on-top", false),
+      click: (menuItem) => setStoreValue("always-on-top", menuItem.checked),
     },
     {
       label: "Show on Startup",
       type: "checkbox",
-      checked: getValue("show-on-startup", true),
-      click: (menuItem) => store.set("show-on-startup", menuItem.checked),
+      checked: getStoreValue("show-on-startup", true),
+      click: (menuItem) => setStoreValue("show-on-startup", menuItem.checked),
     },
     { type: "separator" },
     {
@@ -180,6 +182,7 @@ const createTray = () => {
   tray.on("click", () => toggleVisibility(true));
 };
 
+// App lifecycle
 app
   .whenReady()
   .then(() => {
