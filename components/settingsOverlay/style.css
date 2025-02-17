@@ -51,12 +51,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px; /* add gap between label and input */
 }
 
-.shortcut > * {
-  flex: 1; /* Distribute space evenly between label and input */
-}
 
 .name {
   font-size: 20px;
@@ -138,7 +134,7 @@ body {
 
 .settings-container > div {
   display: grid;
-  grid-template-columns: 150px 1fr;
+  grid-template-columns: 160pt 1fr;
   align-items: center;
   gap: 1rem;
 }
