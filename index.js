@@ -173,7 +173,7 @@ const createTray = () => {
     },
     { type: "separator" },
     {
-      label: "Quit Ollama",
+      label: "Quit",
       click: () => mainWindow.close(),
     },
   ]);
