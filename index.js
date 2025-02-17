@@ -139,8 +139,8 @@ const createTray = () => {
       label: "Settings",
       click: () => {
         const dialog = new BrowserWindow({
-          width: 500,
-          height: 370,
+          width: 550,
+          height: 320,
           frame: false,
           maximizable: false,
           resizable: false,
