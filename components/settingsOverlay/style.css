@@ -56,11 +56,12 @@ body {
 
 .name {
   font-size: 20px;
-  /* text-align: right; */ /* Removed for potentially better alignment with grid */
-  /* padding-right: 10px; */ /* Adjusted as part of alignment tuning */
-  padding-left: 5px; /* Add some padding to prevent sticking to the edge */
+  text-align: left; /* Ensure consistent text alignment */
+  padding-right: 1rem; /* Space between label and input */
   font-weight: 500;
   white-space: nowrap; /* Prevent labels from wrapping */
+  width: 180px; /* Fixed width for all labels */
+  /* padding-left: 5px; */ /* Remove if text-align left is used with fixed width */
 }
 
 .btn,
@@ -71,6 +72,7 @@ body {
   padding: 0 10px;
   font-size: 17px;
   color: var(--text-color);
+  width: 100%; /* Make inputs take full width of their grid column */
 }
 
 .url-input {
@@ -136,8 +138,7 @@ body {
 
 .settings-container > div {
   display: grid;
-  /* grid-template-columns: 160pt 1fr; */ /* Old value */
-  grid-template-columns: auto 1fr; /* Allow label to size naturally, input takes rest */
+  grid-template-columns: 180px 1fr; /* Fixed width for labels, input takes rest */
   align-items: center; /* Vertically center items in the row */
   gap: 1rem; /* Keep the gap */
 }
