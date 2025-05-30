@@ -19,6 +19,7 @@ const __dirname = dirname(__filename);
 
 let tray, mainWindow, closeTimeout, visible = true;
 let lastGoodUrl = 'https://gemini.google.com/app'; // Initialize lastGoodUrl with new default
+let isQuitting = false; // Flag to indicate if the app is quitting
 
 // Utility functions
 const executeJavaScript = (code) =>
@@ -27,14 +28,29 @@ const getStoreValue = (key, defaultVal = false) => store.get(key, defaultVal);
 const setStoreValue = (key, value) => store.set(key, value);
 
 const toggleVisibility = (action) => {
+  if (!mainWindow || mainWindow.isDestroyed()) {
+    console.warn("toggleVisibility called but mainWindow is not available or destroyed. Skipping.");
+    return;
+  }
   visible = action;
   clearTimeout(closeTimeout);
   if (action) {
-    mainWindow.show();
+    if (!mainWindow.isDestroyed()) mainWindow.show();
   } else {
-    closeTimeout = setTimeout(() => mainWindow.hide(), 400);
+    closeTimeout = setTimeout(() => {
+      if (!mainWindow || mainWindow.isDestroyed()) {
+        console.warn("toggleVisibility (setTimeout hide): mainWindow is not available or destroyed. Skipping hide.");
+        return;
+      }
+      mainWindow.hide();
+    }, 400);
   }
-  mainWindow.webContents.send("toggle-visibility", action);
+  
+  if (mainWindow && !mainWindow.isDestroyed() && mainWindow.webContents && !mainWindow.webContents.isDestroyed()) {
+    mainWindow.webContents.send("toggle-visibility", action);
+  } else {
+    console.warn("toggleVisibility: mainWindow.webContents not available for sending IPC. Skipping.");
+  }
 };
 
 const registerKeybindings = () => {
@@ -51,8 +67,15 @@ const registerKeybindings = () => {
 
   if (toggleMicShortcut) {
     globalShortcut.register(toggleMicShortcut, () => {
-      toggleVisibility(true);
-      mainWindow.webContents.send("activate-mic");
+      // Call the hardened toggleVisibility
+      toggleVisibility(true); 
+      
+      // Send IPC message only if webContents exist and are not destroyed
+      if (mainWindow && !mainWindow.isDestroyed() && mainWindow.webContents && !mainWindow.webContents.isDestroyed()) {
+        mainWindow.webContents.send("activate-mic");
+      } else {
+        console.warn("registerKeybindings (mic shortcut): mainWindow.webContents not available. Skipping send 'activate-mic'.");
+      }
     });
   }
 };
@@ -227,6 +250,10 @@ const createTray = () => {
         
         // Add a listener for when the settings dialog is closed
         dialog.on('close', () => {
+          if (isQuitting) {
+            console.log("App is quitting, skipping re-registration of keybindings as settings dialog closes.");
+            return; // Do not proceed to registerKeybindings if app is quitting
+          }
           console.log("Settings dialog closed, re-registering keybindings.");
           registerKeybindings(); // Re-register shortcuts from store
         });
@@ -266,3 +293,8 @@ app
     registerKeybindings();
   })
   .catch(console.error);
+
+app.on('before-quit', () => {
+  console.log("before-quit event triggered. Setting isQuitting = true.");
+  isQuitting = true;
+});
