@@ -56,9 +56,11 @@ body {
 
 .name {
   font-size: 20px;
-  text-align: right;
-  padding-right: 10px;
+  /* text-align: right; */ /* Removed for potentially better alignment with grid */
+  /* padding-right: 10px; */ /* Adjusted as part of alignment tuning */
+  padding-left: 5px; /* Add some padding to prevent sticking to the edge */
   font-weight: 500;
+  white-space: nowrap; /* Prevent labels from wrapping */
 }
 
 .btn,
@@ -134,7 +136,8 @@ body {
 
 .settings-container > div {
   display: grid;
-  grid-template-columns: 160pt 1fr;
-  align-items: center;
-  gap: 1rem;
+  /* grid-template-columns: 160pt 1fr; */ /* Old value */
+  grid-template-columns: auto 1fr; /* Allow label to size naturally, input takes rest */
+  align-items: center; /* Vertically center items in the row */
+  gap: 1rem; /* Keep the gap */
 }
