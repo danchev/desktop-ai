@@ -152,24 +152,30 @@ const createWindow = () => {
   });
 
   ipcMain.on('webview-load-failed', (event, { failedUrl, errorCode, errorDescription }) => {
-    // Ignore specific errors if necessary, e.g. -3 (ABORTED) might be common if user navigates quickly
-    if (errorCode === -3 /* ABORTED */) {
-      console.warn(`Webview load aborted for ${failedUrl}. This might be due to navigation.`);
+    if (errorCode === -3 /* ABORTED */) { // Aborted (ERR_ABORTED is -3)
+      console.log(`Load aborted for ${failedUrl}, usually due to navigation.`); // Changed from warn to log for less noise
       return;
     }
 
-    dialog.showErrorBox(
-      "WebView Load Error",
-      `Failed to load: ${failedUrl}\nError (${errorCode}): ${errorDescription}`
-    );
-    
-    // Check if lastGoodUrl is different and not null/empty before attempting to revert
-    if (lastGoodUrl && lastGoodUrl !== failedUrl && lastGoodUrl !== 'about:blank') {
-      updateWebviewUrl(lastGoodUrl);
-    } else {
-      // If no valid lastGoodUrl or it's the same as the failed one, load about:blank
-      updateWebviewUrl('about:blank');
+    let title = "WebView Load Error";
+    let message = "";
+    const defaultAppUrl = 'https://gemini.google.com/app'; // Defined for clarity
+
+    if (failedUrl === defaultAppUrl) {
+      title = "Default URL Load Error";
+      message = `Failed to load the default application URL: ${failedUrl}\nError (${errorCode}): ${errorDescription}\nPlease check your internet connection. The application will load a blank page.`;
+      // Attempt to load about:blank as a last resort if the default fails.
+      executeJavaScript(`document.getElementById('webview').src = 'about:blank';`);
+    } else { // Failed to load a custom/user-defined URL
+      title = "Custom URL Load Error";
+      message = `Failed to load custom URL: ${failedUrl}\nError (${errorCode}): ${errorDescription}\nAttempting to load the default application URL: ${defaultAppUrl}.`;
+      // Try to revert to the default URL.
+      // If this call to updateWebviewUrl(defaultAppUrl) fails, it will re-trigger this 'webview-load-failed' event,
+      // and the above 'if' block (failedUrl === defaultAppUrl) will handle the message for that specific failure.
+      updateWebviewUrl(defaultAppUrl);
     }
+
+    dialog.showErrorBox(title, message);
   });
 
   ipcMain.on('move-window', (event, { deltaX, deltaY }) => {
