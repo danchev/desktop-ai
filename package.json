@@ -32,6 +32,7 @@
   "build": {
     "appId": "net.danchev.ollama-desktop",
     "productName": "Ollama-Desktop",
+    "artifactName": "${productName}.${ext}",
     "directories": {
       "output": "build"
     },
