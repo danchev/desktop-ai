@@ -60,7 +60,7 @@ body {
   padding-right: 1rem; /* Space between label and input */
   font-weight: 500;
   white-space: nowrap; /* Prevent labels from wrapping */
-  width: 240px; /* Adjusted width for longer labels */
+  width: 150px; /* Adjusted width for shorter labels */
   /* padding-left: 5px; */ /* Remove if text-align left is used with fixed width */
 }
 
@@ -138,7 +138,7 @@ body {
 
 .settings-container > div {
   display: grid;
-  grid-template-columns: 240px 1fr; /* Adjusted width for labels, input takes rest */
+  grid-template-columns: 150px 1fr; /* Adjusted width for labels, input takes rest */
   align-items: center; /* Vertically center items in the row */
   gap: 1rem; /* Keep the gap */
 }

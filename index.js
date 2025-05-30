@@ -114,7 +114,7 @@ const createWindow = () => {
   mainWindow
     .loadFile("src/index.html")
     .then(() => {
-      const storedUserUrl = getStoreValue("webviewUrl", null); // Get stored URL, default to null
+      const storedUserUrl = getStoreValue("serviceUrl", null); // Get stored URL, default to null, changed key
       if (storedUserUrl && isValidUrl(storedUserUrl)) { // Check if it's a valid, non-empty URL
         updateWebviewUrl(storedUserUrl);
       } else {

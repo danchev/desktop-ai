@@ -1,55 +1,104 @@
 const shortcutObjs = document.querySelectorAll(".btn");
-const webviewUrlInput = document.querySelector(".url-input");
+const serviceUrlInput = document.querySelector("#service-url"); // Changed selector to ID and variable name
 
 const register = (event) => { // Parameter is the click event
   const buttonElement = event.target; // Get the button element from the event
-  const originalText = buttonElement.innerText || "Set Shortcut"; // Store original text, default if empty
+  const originalText = buttonElement.dataset.originalText || "Set Shortcut"; // Use data-original-text
   buttonElement.innerText = "Recording..."; // Update button text
 
-  const shortcut = [];
+  let shortcut = []; // Use let to allow clearing/reassignment easily
 
   const keydownHandler = (e) => {
-    e.preventDefault(); // Prevent default browser actions for keys
-    shortcut.push(e.key.toUpperCase()); // Store keys in uppercase for consistency
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (e.key === "Escape") {
+      shortcut.length = 0; // Clear the array
+      buttonElement.innerText = originalText;
+      document.removeEventListener("keydown", keydownHandler);
+      document.removeEventListener("keyup", keyupHandler);
+      return;
+    }
+
+    const keyUpper = e.key.toUpperCase();
+
+    if (keyUpper === "BACKSPACE") {
+      shortcut.pop();
+    } else if (!shortcut.includes(keyUpper)) { // Avoid duplicate keys
+      // Add key if it's not a duplicate and we have space (e.g., max 3 keys)
+      if (shortcut.length < 3) {
+        shortcut.push(keyUpper);
+      }
+    }
+    // Update button text to show current recording
+    buttonElement.innerText = shortcut.length > 0 ? shortcut.join(" + ") : "Recording...";
   };
 
   const keyupHandler = (e) => {
     e.preventDefault();
+    e.stopPropagation();
+
+    // Determine if the released key is a modifier
+    const isModifierKey = (key) => ["CONTROL", "ALT", "SHIFT", "META", "OS"].includes(key.toUpperCase());
+
+    // If the released key is a modifier and it's part of the current shortcut,
+    // or if the shortcut is empty, don't finalize yet unless it's the only key
+    // and we decide to allow single modifier key shortcuts (currently, format() would make it "Set Shortcut").
+    if (isModifierKey(e.key) && shortcut.includes(e.key.toUpperCase()) && shortcut.length < 3 && shortcut.length > 0) {
+        // If a modifier key is released, but other keys are still held or it's not a complete sequence,
+        // wait for more key releases or a non-modifier key.
+        // The current shortcut array is what matters.
+        // We finalize when a non-modifier key is released, or if the sequence is deemed complete.
+        // For simplicity, we'll finalize if the shortcut is not empty and not just modifiers.
+        // This keyup handler might need more sophisticated logic for complex sequences.
+        // Let's assume for now that any keyup could be a signal to try to finalize.
+    }
+
     document.removeEventListener("keydown", keydownHandler);
     document.removeEventListener("keyup", keyupHandler);
 
-    // Filter out modifier keys if they are the only keys pressed
-    const validShortcut = shortcut.filter(key => !["CONTROL", "SHIFT", "ALT", "META"].includes(key));
+    // Filter out modifier keys if they are the only keys pressed, unless we want to allow single modifier shortcuts
+    const nonModifierKeysInShortcut = shortcut.filter(key => !isModifierKey(key));
 
-    if (e.key.toUpperCase() === "BACKSPACE" || validShortcut.length === 0) {
-      buttonElement.innerText = originalText; // Revert to original or default text
-    } else if (shortcut.length > 0) {
-      // Use the last key released if it's not a modifier, or the full sequence
-      // For simplicity, we'll just use the recorded shortcut array
-      // Limit to 3 keys as before
-      buttonElement.innerText = format(shortcut.splice(0, 3));
+    if (shortcut.length === 0 || nonModifierKeysInShortcut.length === 0) { // If empty or only modifiers
+      buttonElement.innerText = originalText;
+      shortcut = []; // Ensure cleared
     } else {
-      buttonElement.innerText = originalText; // Fallback if shortcut is empty
+      const formattedShortcut = format(shortcut); // format will also handle max length if needed by splicing
+      buttonElement.innerText = formattedShortcut;
+      if (formattedShortcut !== "Set Shortcut") { // Only update originalText if it's a valid shortcut
+          buttonElement.dataset.originalText = formattedShortcut;
+      } else {
+          buttonElement.innerText = originalText; // Revert if format() decided it's not a valid shortcut
+      }
     }
   };
 
   document.addEventListener("keydown", keydownHandler);
-  document.addEventListener("keyup", keyupHandler, { once: true });
+  document.addEventListener("keyup", keyupHandler); // Removed { once: true } to handle multi-key sequences better
 };
 
 function format(array) {
+  // Ensure we handle splicing for max length within format or before calling format if register allows more than 3 keys.
+  // The current keydownHandler limits to 3 keys.
+  const validShortcutArray = array.slice(0, 3); // Ensure max 3 keys
+  if (!validShortcutArray || validShortcutArray.length === 0) return "Set Shortcut";
   if (!array || array.length === 0) return "Set Shortcut"; // Default text for empty shortcut
   return array.join(" + ").toUpperCase(); // Display in uppercase
 }
 
 async function main() {
   const initialShortcut = await window.electron.getLocalStorage("toggleVisibilityShortcut");
-  shortcutObjs[0].innerText = initialShortcut || "Set Shortcut"; // Default text if no shortcut
+  const initialShortcutText = initialShortcut || "Set Shortcut";
+  shortcutObjs[0].innerText = initialShortcutText;
+  shortcutObjs[0].dataset.originalText = initialShortcutText; // Initialize dataset.originalText
 
   shortcutObjs.forEach((btn) => {
-    // Store original text in a data attribute in case it's cleared
-    const originalText = btn.innerText || "Set Shortcut";
-    btn.setAttribute('data-original-text', originalText);
+    // Ensure original text is set for all shortcut buttons if there were more
+    if (!btn.dataset.originalText) {
+        const btnOriginalText = btn.innerText || "Set Shortcut";
+        btn.dataset.originalText = btnOriginalText;
+    }
 
     btn.onclick = (event) => {
       // Before starting registration, ensure other buttons are not in "Recording..." state
@@ -62,13 +111,13 @@ async function main() {
     };
   });
 
-  webviewUrlInput.placeholder = "Enter webview URL";
-  webviewUrlInput.value =
-    (await window.electron.getLocalStorage("webviewUrl")) || "";
-  webviewUrlInput.onfocus = () => {
-    webviewUrlInput.select();
+  // serviceUrlInput.placeholder is set in HTML, no need to set via JS unless dynamic
+  serviceUrlInput.value =
+    (await window.electron.getLocalStorage("serviceUrl")) || ""; // Changed key
+  serviceUrlInput.onfocus = () => {
+    serviceUrlInput.select();
   };
-  webviewUrlInput.addEventListener("keydown", (e) => {
+  serviceUrlInput.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
       document.querySelector(".done").click();
     }
@@ -79,8 +128,8 @@ async function main() {
       "toggleVisibilityShortcut",
       shortcutObjs[0].innerText,
     );
-    await window.electron.setLocalStorage("webviewUrl", webviewUrlInput.value);
-    window.electron.updateWebviewUrl(webviewUrlInput.value);
+    await window.electron.setLocalStorage("serviceUrl", serviceUrlInput.value); // Changed key and variable
+    window.electron.updateWebviewUrl(serviceUrlInput.value); // Use new variable
     window.electron.close();
   };
 
