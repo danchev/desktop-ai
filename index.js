@@ -202,6 +202,10 @@ const createTray = () => {
     {
       label: "Settings",
       click: () => {
+        // Temporarily unregister all global shortcuts
+        console.log("Opening settings, unregistering all global shortcuts.");
+        globalShortcut.unregisterAll();
+
         const dialog = new BrowserWindow({
           width: 550,
           height: 320,
@@ -220,7 +224,14 @@ const createTray = () => {
         dialog
           .loadFile("components/settingsOverlay/index.html")
           .catch(console.error);
-        dialog.show();
+        
+        // Add a listener for when the settings dialog is closed
+        dialog.on('close', () => {
+          console.log("Settings dialog closed, re-registering keybindings.");
+          registerKeybindings(); // Re-register shortcuts from store
+        });
+
+        dialog.show(); // Show the dialog AFTER setting up the 'close' listener
       },
     },
     {
