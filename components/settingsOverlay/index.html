@@ -1,36 +1,33 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Settings</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Settings</title>
-  <link rel="stylesheet" href="style.css">
-</head>
+  <body>
+    <main>
+      <section class="settings-container">
+        <header>
+          <h2 class="headline">Settings</h2>
+        </header>
+        <div class="shortcut">
+          <label for="shortcut-btn" class="name">App Shortcut:</label>
+          <button id="shortcut-btn" class="btn"></button>
+        </div>
+        <div class="url">
+          <label for="service-url" class="name">Service URL:</label>
+          <input type="url" id="service-url" class="url-input" placeholder="Enter service URL" />
+        </div>
+      </section>
+    </main>
 
-<body>
-  <main>
-
-    <section class="settings-container">
-      <header>
-        <h2 class="headline">Settings</h2>
-      </header>
-      <div class="shortcut">
-        <label for="shortcut-btn" class="name">App Shortcut:</label>
-        <button id="shortcut-btn" class="btn"></button>
-      </div>
-      <div class="url">
-        <label for="service-url" class="name">Service URL:</label>
-        <input type="url" id="service-url" class="url-input" placeholder="Enter service URL">
-      </div>
-    </section>
-  </main>
-
-  <footer class="btn-container">
-    <button class="done">Save</button>
-    <button class="cancel">Cancel</button>
-  </footer>
-  <script defer src="script.js"></script>
-</body>
-
+    <footer class="btn-container">
+      <button class="done">Save</button>
+      <button class="cancel">Cancel</button>
+    </footer>
+    <script defer src="script.js"></script>
+  </body>
 </html>

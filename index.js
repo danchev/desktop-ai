@@ -17,36 +17,48 @@ const store = new Store();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-let tray, mainWindow, closeTimeout, visible = true;
-let lastGoodUrl = 'https://gemini.google.com/app'; // Initialize lastGoodUrl with new default
+let tray,
+  mainWindow,
+  closeTimeout,
+  visible = true;
+let lastGoodUrl = "https://gemini.google.com/app"; // Initialize lastGoodUrl with new default
 let isQuitting = false; // Flag to indicate if the app is quitting
 
 // Utility functions
-const executeJavaScript = (code) =>
-  mainWindow.webContents.executeJavaScript(code).catch(console.error);
+const isMainWindowValid = () => mainWindow && !mainWindow.isDestroyed();
+const areWebContentsValid = (contents) => contents && !contents.isDestroyed();
+
+const executeJavaScript = (code) => {
+  if (isMainWindowValid() && areWebContentsValid(mainWindow.webContents)) {
+    mainWindow.webContents.executeJavaScript(code).catch(console.error);
+  } else {
+    console.warn("executeJavaScript: mainWindow or its webContents are not available.");
+  }
+};
 const getStoreValue = (key, defaultVal = false) => store.get(key, defaultVal);
 const setStoreValue = (key, value) => store.set(key, value);
 
 const toggleVisibility = (action) => {
-  if (!mainWindow || mainWindow.isDestroyed()) {
+  if (!isMainWindowValid()) {
     console.warn("toggleVisibility called but mainWindow is not available or destroyed. Skipping.");
     return;
   }
   visible = action;
   clearTimeout(closeTimeout);
   if (action) {
-    if (!mainWindow.isDestroyed()) mainWindow.show();
+    // Check again before calling method, though isMainWindowValid was already checked.
+    if (isMainWindowValid()) mainWindow.show();
   } else {
     closeTimeout = setTimeout(() => {
-      if (!mainWindow || mainWindow.isDestroyed()) {
+      if (!isMainWindowValid()) {
         console.warn("toggleVisibility (setTimeout hide): mainWindow is not available or destroyed. Skipping hide.");
         return;
       }
       mainWindow.hide();
     }, 400);
   }
-  
-  if (mainWindow && !mainWindow.isDestroyed() && mainWindow.webContents && !mainWindow.webContents.isDestroyed()) {
+
+  if (isMainWindowValid() && areWebContentsValid(mainWindow.webContents)) {
     mainWindow.webContents.send("toggle-visibility", action);
   } else {
     console.warn("toggleVisibility: mainWindow.webContents not available for sending IPC. Skipping.");
@@ -57,27 +69,26 @@ const registerKeybindings = () => {
   globalShortcut.unregisterAll();
 
   const toggleVisibilityShortcut = getStoreValue("toggleVisibilityShortcut");
-  const toggleMicShortcut = getStoreValue("toggleMicShortcut");
+  // const toggleMicShortcut = getStoreValue("toggleMicShortcut"); // Commented out
 
   if (toggleVisibilityShortcut) {
-    globalShortcut.register(toggleVisibilityShortcut, () =>
-      toggleVisibility(!visible),
-    );
+    globalShortcut.register(toggleVisibilityShortcut, () => toggleVisibility(!visible));
   }
 
-  if (toggleMicShortcut) {
-    globalShortcut.register(toggleMicShortcut, () => {
-      // Call the hardened toggleVisibility
-      toggleVisibility(true); 
-      
-      // Send IPC message only if webContents exist and are not destroyed
-      if (mainWindow && !mainWindow.isDestroyed() && mainWindow.webContents && !mainWindow.webContents.isDestroyed()) {
-        mainWindow.webContents.send("activate-mic");
-      } else {
-        console.warn("registerKeybindings (mic shortcut): mainWindow.webContents not available. Skipping send 'activate-mic'.");
-      }
-    });
-  }
+  // Commented out toggleMicShortcut feature
+  // if (toggleMicShortcut) {
+  //   globalShortcut.register(toggleMicShortcut, () => {
+  //     // Call the hardened toggleVisibility
+  //     toggleVisibility(true);
+
+  //     // Send IPC message only if webContents exist and are not destroyed
+  //     if (isMainWindowValid() && areWebContentsValid(mainWindow.webContents)) {
+  //       mainWindow.webContents.send("activate-mic");
+  //     } else {
+  //       console.warn("registerKeybindings (mic shortcut): mainWindow.webContents not available. Skipping send 'activate-mic'.");
+  //     }
+  //   });
+  // }
 };
 
 const isValidUrl = (url) => {
@@ -92,12 +103,13 @@ const isValidUrl = (url) => {
 
 const updateWebviewUrl = (url) => {
   // Basic check for empty or clearly invalid URLs before attempting to load
-  if (!url || typeof url !== 'string' || (!url.startsWith('http://') && !url.startsWith('https://') && url !== 'about:blank')) {
+  if (!url || typeof url !== "string" || (!url.startsWith("http://") && !url.startsWith("https://") && url !== "about:blank")) {
     console.warn(`Invalid URL passed to updateWebviewUrl: ${url}. Using last known good URL or about:blank.`);
     // Attempt to load lastGoodUrl or about:blank if the provided url is obviously invalid
-    const fallbackUrl = (lastGoodUrl && lastGoodUrl !== url) ? lastGoodUrl : 'about:blank';
+    const fallbackUrl = lastGoodUrl && lastGoodUrl !== url ? lastGoodUrl : "about:blank";
     executeJavaScript(`document.getElementById('webview').src = \`${fallbackUrl}\`;`);
-    if (url !== fallbackUrl) { // Avoid erroring for the fallback itself
+    if (url !== fallbackUrl) {
+      // Avoid erroring for the fallback itself
       dialog.showErrorBox("Invalid URL", `The provided URL "${url}" is not valid. Loading previous or blank page.`);
     }
     return;
@@ -123,7 +135,7 @@ const createWindow = () => {
     transparent: true,
     x: width - winWidth - 10,
     y: height - winHeight - 60,
-    icon: resolve(__dirname, "icon.png"),
+    icon: resolve(__dirname, "assets/icon.png"), // Corrected icon path
     show: getStoreValue("show-on-startup", true),
     webPreferences: {
       contextIsolation: true,
@@ -138,7 +150,8 @@ const createWindow = () => {
     .loadFile("src/index.html")
     .then(() => {
       const storedUserUrl = getStoreValue("serviceUrl", null); // Get stored URL, default to null, changed key
-      if (storedUserUrl && isValidUrl(storedUserUrl)) { // Check if it's a valid, non-empty URL
+      if (storedUserUrl && isValidUrl(storedUserUrl)) {
+        // Check if it's a valid, non-empty URL
         updateWebviewUrl(storedUserUrl);
       } else {
         updateWebviewUrl(lastGoodUrl); // Default to lastGoodUrl (https://gemini.google.com/app)
@@ -163,33 +176,36 @@ const createWindow = () => {
     updateWebviewUrl(url);
   });
 
-  ipcMain.on('webview-load-succeeded', (event, { loadedUrl }) => {
-    if (loadedUrl && loadedUrl !== 'about:blank') { // Don't store about:blank as a "good" user URL
-        lastGoodUrl = loadedUrl;
-        // Optionally, update the store if you want the last successfully loaded URL to persist
-        // Be careful with this, as it might overwrite a user's deliberate setting if they temporarily go to a different page.
-        // For now, just updating lastGoodUrl for session recovery.
-        // setStoreValue("webviewUrl", loadedUrl); 
+  ipcMain.on("webview-load-succeeded", (event, { loadedUrl }) => {
+    if (loadedUrl && loadedUrl !== "about:blank") {
+      // Don't store about:blank as a "good" user URL
+      lastGoodUrl = loadedUrl;
+      // Optionally, update the store if you want the last successfully loaded URL to persist
+      // Be careful with this, as it might overwrite a user's deliberate setting if they temporarily go to a different page.
+      // For now, just updating lastGoodUrl for session recovery.
+      // setStoreValue("webviewUrl", loadedUrl);
     }
     console.log(`Webview successfully loaded: ${loadedUrl}`);
   });
 
-  ipcMain.on('webview-load-failed', (event, { failedUrl, errorCode, errorDescription }) => {
-    if (errorCode === -3 /* ABORTED */) { // Aborted (ERR_ABORTED is -3)
+  ipcMain.on("webview-load-failed", (event, { failedUrl, errorCode, errorDescription }) => {
+    if (errorCode === -3 /* ABORTED */) {
+      // Aborted (ERR_ABORTED is -3)
       console.log(`Load aborted for ${failedUrl}, usually due to navigation.`); // Changed from warn to log for less noise
       return;
     }
 
     let title = "WebView Load Error";
     let message = "";
-    const defaultAppUrl = 'https://gemini.google.com/app'; // Defined for clarity
+    const defaultAppUrl = "https://gemini.google.com/app"; // Defined for clarity
 
     if (failedUrl === defaultAppUrl) {
       title = "Default URL Load Error";
       message = `Failed to load the default application URL: ${failedUrl}\nError (${errorCode}): ${errorDescription}\nPlease check your internet connection. The application will load a blank page.`;
       // Attempt to load about:blank as a last resort if the default fails.
       executeJavaScript(`document.getElementById('webview').src = 'about:blank';`);
-    } else { // Failed to load a custom/user-defined URL
+    } else {
+      // Failed to load a custom/user-defined URL
       title = "Custom URL Load Error";
       message = `Failed to load custom URL: ${failedUrl}\nError (${errorCode}): ${errorDescription}\nAttempting to load the default application URL: ${defaultAppUrl}.`;
       // Try to revert to the default URL.
@@ -201,8 +217,8 @@ const createWindow = () => {
     dialog.showErrorBox(title, message);
   });
 
-  ipcMain.on('move-window', (event, { deltaX, deltaY }) => {
-    if (mainWindow) {
+  ipcMain.on("move-window", (event, { deltaX, deltaY }) => {
+    if (isMainWindowValid()) {
       const currentPosition = mainWindow.getPosition();
       const newX = currentPosition[0] + deltaX;
       const newY = currentPosition[1] + deltaY;
@@ -216,10 +232,7 @@ const createTray = () => {
   const contextMenu = Menu.buildFromTemplate([
     {
       label: "About (GitHub)",
-      click: () =>
-        shell
-          .openExternal("https://github.com/danchev/ollama-desktop")
-          .catch(console.error),
+      click: () => shell.openExternal("https://github.com/danchev/ollama-desktop").catch(console.error),
     },
     { type: "separator" },
     {
@@ -238,18 +251,13 @@ const createTray = () => {
           skipTaskbar: true,
           webPreferences: {
             contextIsolation: true,
-            preload: join(
-              __dirname,
-              "components/settingsOverlay/preload.js",
-            ),
+            preload: join(__dirname, "components/settingsOverlay/preload.js"),
           },
         });
-        dialog
-          .loadFile("components/settingsOverlay/index.html")
-          .catch(console.error);
-        
+        dialog.loadFile("components/settingsOverlay/index.html").catch(console.error);
+
         // Add a listener for when the settings dialog is closed
-        dialog.on('close', () => {
+        dialog.on("close", () => {
           if (isQuitting) {
             console.log("App is quitting, skipping re-registration of keybindings as settings dialog closes.");
             return; // Do not proceed to registerKeybindings if app is quitting
@@ -294,7 +302,7 @@ app
   })
   .catch(console.error);
 
-app.on('before-quit', () => {
+app.on("before-quit", () => {
   console.log("before-quit event triggered. Setting isQuitting = true.");
   isQuitting = true;
 });

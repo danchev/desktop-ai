@@ -1,12 +1,12 @@
-import { expect } from 'chai';
-import sinon from 'sinon';
+import { expect } from "chai";
+import sinon from "sinon";
 
 const mockElectron = {
   app: {
     whenReady: sinon.stub().resolves(),
     on: sinon.stub(),
     isReady: sinon.stub().returns(true),
-    getPath: sinon.stub().returns(''),
+    getPath: sinon.stub().returns(""),
   },
   BrowserWindow: sinon.stub(), // This will be the constructor mock
   ipcMain: {
@@ -55,13 +55,12 @@ mockElectron.BrowserWindow.prototype.webContents = {
   executeJavaScript: sinon.stub().resolves(),
 };
 
-
 let ipcCallbackMoveWindow;
 
-describe('Main Process - Drag Functionality (ESM Attempt)', function() {
+describe("Main Process - Drag Functionality (ESM Attempt)", function () {
   this.timeout(5000);
 
-  let mockMainWindowInstanceFromConstructor; 
+  let mockMainWindowInstanceFromConstructor;
 
   before(() => {
     // Reset global mocks that might be stateful from other files (if any)
@@ -77,7 +76,8 @@ describe('Main Process - Drag Functionality (ESM Attempt)', function() {
       setPosition: mockElectron.BrowserWindow.prototype.setPosition,
       loadFile: mockElectron.BrowserWindow.prototype.loadFile,
       on: mockElectron.BrowserWindow.prototype.on,
-      webContents: { // Each instance should have its own webContents stub group
+      webContents: {
+        // Each instance should have its own webContents stub group
         send: sinon.stub(),
         executeJavaScript: sinon.stub().resolves(),
       },
@@ -88,8 +88,8 @@ describe('Main Process - Drag Functionality (ESM Attempt)', function() {
     };
     mockElectron.BrowserWindow.returns(mockMainWindowInstanceFromConstructor);
   });
-  
-  beforeEach(function() {
+
+  beforeEach(function () {
     // Reset history for all stubs before each test
     mockElectron.ipcMain.on.resetHistory(); // Critical for capturing specific handlers
     mockElectron.BrowserWindow.resetHistory(); // Reset constructor usage stats
@@ -105,20 +105,19 @@ describe('Main Process - Drag Functionality (ESM Attempt)', function() {
     mockMainWindowInstanceFromConstructor.show.resetHistory();
     mockMainWindowInstanceFromConstructor.hide.resetHistory();
     mockMainWindowInstanceFromConstructor.close.resetHistory();
-    
+
     // Default return values for instance methods
     mockMainWindowInstanceFromConstructor.getPosition.returns([100, 100]);
-
 
     // Attempt to capture the 'move-window' handler.
     // This will only find a handler if index.js (module under test) somehow used
     // the `mockElectron.ipcMain.on` stub when it was loaded.
     // Due to ESM import behavior, index.js loads its own 'electron', so this won't capture real handlers.
-    const moveWindowReg = mockElectron.ipcMain.on.getCalls().find(call => call.args[0] === 'move-window');
-    if (moveWindowReg && typeof moveWindowReg.args[1] === 'function') {
-        ipcCallbackMoveWindow = moveWindowReg.args[1];
+    const moveWindowReg = mockElectron.ipcMain.on.getCalls().find((call) => call.args[0] === "move-window");
+    if (moveWindowReg && typeof moveWindowReg.args[1] === "function") {
+      ipcCallbackMoveWindow = moveWindowReg.args[1];
     } else {
-        ipcCallbackMoveWindow = null; 
+      ipcCallbackMoveWindow = null;
     }
   });
 
@@ -128,34 +127,34 @@ describe('Main Process - Drag Functionality (ESM Attempt)', function() {
     // It's often better to restore more granularly if needed, or let it be if tests are isolated.
   });
 
-  it('should register "move-window" IPC handler (conceptual: checks if handler was captured on mock)', function() {
+  it('should register "move-window" IPC handler (conceptual: checks if handler was captured on mock)', function () {
     if (!ipcCallbackMoveWindow) {
-      this.skip(); 
+      this.skip();
     }
-    expect(ipcCallbackMoveWindow).to.be.a('function');
+    expect(ipcCallbackMoveWindow).to.be.a("function");
   });
 
-  it('should update window position when "move-window" is received (if handler captured)', function() {
+  it('should update window position when "move-window" is received (if handler captured)', function () {
     if (!ipcCallbackMoveWindow) this.skip();
 
     const initialPosition = [100, 100];
-    mockMainWindowInstanceFromConstructor.getPosition.returns(initialPosition); 
+    mockMainWindowInstanceFromConstructor.getPosition.returns(initialPosition);
 
-    const event = {}; 
+    const event = {};
     const delta = { deltaX: 10, deltaY: 20 };
-    
+
     // We are directly invoking the captured callback, assuming it's the handler from index.js
     ipcCallbackMoveWindow(event, delta);
 
     expect(mockMainWindowInstanceFromConstructor.getPosition.calledOnce).to.be.true;
     expect(mockMainWindowInstanceFromConstructor.setPosition.calledOnce).to.be.true;
-    
+
     const expectedX = initialPosition[0] + delta.deltaX;
     const expectedY = initialPosition[1] + delta.deltaY;
     expect(mockMainWindowInstanceFromConstructor.setPosition.calledWith(expectedX, expectedY, false)).to.be.true;
   });
 
-  it('should not attempt to move window if mainWindow is not defined (conceptual)', function() {
+  it("should not attempt to move window if mainWindow is not defined (conceptual)", function () {
     if (!ipcCallbackMoveWindow) this.skip();
     // This test relies on the internal guard `if (mainWindow)` in the actual handler.
     // To truly test this, the `ipcCallbackMoveWindow` would need to be the actual handler
