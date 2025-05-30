@@ -18,7 +18,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 let tray, mainWindow, closeTimeout, visible = true;
-let lastGoodUrl = 'about:blank'; // Initialize lastGoodUrl
+let lastGoodUrl = 'https://gemini.google.com/app'; // Initialize lastGoodUrl with new default
 
 // Utility functions
 const executeJavaScript = (code) =>
@@ -114,15 +114,11 @@ const createWindow = () => {
   mainWindow
     .loadFile("src/index.html")
     .then(() => {
-      const storedWebviewUrl = getStoreValue("webviewUrl", ""); // Default to empty string
-      if (storedWebviewUrl && storedWebviewUrl !== 'about:blank') {
-        updateWebviewUrl(storedWebviewUrl);
+      const storedUserUrl = getStoreValue("webviewUrl", null); // Get stored URL, default to null
+      if (storedUserUrl && isValidUrl(storedUserUrl)) { // Check if it's a valid, non-empty URL
+        updateWebviewUrl(storedUserUrl);
       } else {
-        // If no URL is stored or it's about:blank, we can explicitly set it
-        // or rely on the webview's default src if defined in HTML,
-        // or just let it be (usually defaults to a blank page).
-        // For clarity, let's ensure it starts with about:blank if no valid URL.
-        updateWebviewUrl('about:blank');
+        updateWebviewUrl(lastGoodUrl); // Default to lastGoodUrl (https://gemini.google.com/app)
       }
     })
     .catch(console.error);
