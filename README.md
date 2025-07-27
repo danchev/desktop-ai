@@ -1,53 +1,48 @@
-# Ollama Desktop Client (Electron)
+# Desktop AI Client (Electron)
 
-Fork of the original Gemini Desktop Client by [nekupaw](https://github.com/nekupaw/gemini-desktop) with modifications for self-hosted AI interface.
+Desktop AI is a cross-platform desktop application for AI chat, built with Electron. It provides a simple interface to interact with various AI models and services directly from your desktop.
 
-Precompiled versions for Linux and Windows are available for download here:
-[Windows (Setup)](https://github.com/danchev/ollama-desktop/releases/latest/download/Ollama-Desktop.exe),
-[Linux (AppImage)](https://github.com/danchev/ollama-desktop/releases/latest/download/Ollama-Desktop.AppImage)
+## Features
 
-For other systems, simply adapt and build the source code to suit your
-needs.
+- Cross-platform: Windows, Linux, and macOS support
+- Simple desktop client for AI web interfaces
+- Command-line launcher (`desktop-ai`)
+- Customizable keyboard shortcut (Ctrl + G) to open Desktop AI from anywhere
+- Open source and easy to extend
 
-## Development
+## Download & Installation
 
-### Code Quality and Formatting
+### Precompiled Releases
 
-This project uses pre-commit hooks to ensure code quality and consistent
-formatting. The hooks are defined in `.pre-commit-config.yaml` and currently
-include:
+Prebuilt installers are available for:
 
-- Basic checks like trailing whitespace, end-of-file fixing, and YAML/JSON
-  validation.
-- Automated code formatting using [Prettier](https://prettier.io/).
+- [Windows (Setup)](https://github.com/danchev/desktop-ai/releases/latest/download/desktop-ai.exe)
+- [Linux (AppImage)](https://github.com/danchev/desktop-ai/releases/latest/download/desktop-ai.AppImage)
 
-#### Setting Up Pre-commit Hooks
+Just download and run the installer for your platform.
 
-To use these hooks locally, you need to have `pre-commit` installed and then
-set up the hooks in your local repository clone:
+## CLI Usage
 
-1.  **Install pre-commit:**
-    If you don't have it installed, you can typically install it using pip:
-    ```bash
-    pip install pre-commit
-    ```
-    Alternatively, see the
-    [official installation guide](https://pre-commit.com/#installation) for
-    other methods (e.g., using Homebrew, Conda).
+After installing globally:
 
-2.  **Install the git hooks:**
-    Navigate to the root directory of this repository and run:
-    ```bash
-    pre-commit install
-    ```
+```bash
+npm install -g desktop-ai
+```
 
-Once installed, the hooks will run automatically on `git commit`. If any hooks
-modify files (like Prettier formatting your code), you'll need to `git add`
-those changes and re-commit.
+You can launch the desktop client from the terminal with:
 
----
+```bash
+desktop-ai
+```
 
-This client operates by utilizing a WebView container to access the Ollama
-website and implements various modifications for enhanced user experience. With
-the shortcut Ctrl + G, Ollama can be opened from anywhere. tip: use the
-installer and copy the shortcut from the desktop to the startup folder.
+## Keyboard Shortcut
+
+By default, you can open Desktop AI from anywhere using Ctrl + G. To enable auto-start, copy the shortcut from your desktop to your system's startup folder.
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for development guidelines and code quality standards.
+
+## License
+
+This project is licensed under the GNU Affero General Public License v3.0. See the [LICENSE](LICENSE) file for details.

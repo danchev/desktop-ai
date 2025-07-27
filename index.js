@@ -21,8 +21,8 @@ let tray,
   mainWindow,
   closeTimeout,
   visible = true;
-let lastGoodUrl = "https://gemini.google.com/app"; // Initialize lastGoodUrl with new default
-let isQuitting = false; // Flag to indicate if the app is quitting
+let lastGoodUrl = "https://gemini.google.com/app";
+let isQuitting = false;
 
 // Utility functions
 const isMainWindowValid = () => mainWindow && !mainWindow.isDestroyed();
@@ -232,7 +232,7 @@ const createTray = () => {
   const contextMenu = Menu.buildFromTemplate([
     {
       label: "About (GitHub)",
-      click: () => shell.openExternal("https://github.com/danchev/ollama-desktop").catch(console.error),
+      click: () => shell.openExternal("https://github.com/danchev/desktop-ai").catch(console.error),
     },
     { type: "separator" },
     {
